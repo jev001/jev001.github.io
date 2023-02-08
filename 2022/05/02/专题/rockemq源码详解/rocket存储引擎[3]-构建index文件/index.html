@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 6.1.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css" integrity="sha256-DfWjNxDkM94fVBWx1H5BMMp0Zq7luBlV8QRcSES7s+0=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous"></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"jev001.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":true,"version":"8.11.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":true,"motion":{"enable":true,"async":true,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+
+
+<link rel="canonical" href="http://jev001.github.io/2022/05/02/%E4%B8%93%E9%A2%98/rockemq%E6%BA%90%E7%A0%81%E8%AF%A6%E8%A7%A3/rocket%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E[3]-%E6%9E%84%E5%BB%BAindex%E6%96%87%E4%BB%B6/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://jev001.github.io/2022/05/02/%E4%B8%93%E9%A2%98/rockemq%E6%BA%90%E7%A0%81%E8%AF%A6%E8%A7%A3/rocket%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E[3]-%E6%9E%84%E5%BB%BAindex%E6%96%87%E4%BB%B6/","path":"2022/05/02/专题/rockemq源码详解/rocket存储引擎[3]-构建index文件/","title":"rocket存储引擎[3]-构建index文件"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>rocket存储引擎[3]-构建index文件 | jev001's Blog</title>
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="jev001's Blog" type="application/atom+xml"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">jev001's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">11</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">4</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">22</span></a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9E%84%E5%BB%BAIndex%E6%96%87%E4%BB%B6"><span class="nav-number">1.</span> <span class="nav-text">构建Index文件</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="jev001"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">jev001</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">22</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/jev001" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;jev001" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i></a>
+      </span>
+  </div>
+  <div class="cc-license site-overview-item animated" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="https://cdn.jsdelivr.net/npm/@creativecommons/vocabulary@2020.11.3/assets/license_badges/small/by_nc_sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+        </div>
+      </div>
+        <div class="back-to-top animated" role="button" aria-label="返回顶部">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://jev001.github.io/2022/05/02/%E4%B8%93%E9%A2%98/rockemq%E6%BA%90%E7%A0%81%E8%AF%A6%E8%A7%A3/rocket%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E[3]-%E6%9E%84%E5%BB%BAindex%E6%96%87%E4%BB%B6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="jev001">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="jev001's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="rocket存储引擎[3]-构建index文件 | jev001's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          rocket存储引擎[3]-构建index文件
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2022-05-03 07:00:17" itemprop="dateCreated datePublished" datetime="2022-05-03T07:00:17+08:00">2022-05-03</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2023-02-08 15:14:52" itemprop="dateModified" datetime="2023-02-08T15:14:52+08:00">2023-02-08</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/" itemprop="url" rel="index"><span itemprop="name">中间件</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/rocketmq/" itemprop="url" rel="index"><span itemprop="name">rocketmq</span></a>
+        </span>
+    </span>
+
+  
+    <span id="/2022/05/02/%E4%B8%93%E9%A2%98/rockemq%E6%BA%90%E7%A0%81%E8%AF%A6%E8%A7%A3/rocket%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E%5B3%5D-%E6%9E%84%E5%BB%BAindex%E6%96%87%E4%BB%B6/" class="post-meta-item leancloud_visitors" data-flag-title="rocket存储引擎[3]-构建index文件" title="阅读次数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span class="leancloud-visitors-count"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>6.6k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>6 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h2 id="构建Index文件"><a href="#构建Index文件" class="headerlink" title="构建Index文件"></a>构建Index文件</h2><span id="more"></span> 
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br></pre></td><td class="code"><pre><span class="line">[<span class="number">20220427</span>]-commitlog文件初探三-构建Index索引文件。</span><br><span class="line">index文件的构建依靠了前面提到的rePut重放数据的功能.</span><br><span class="line"><span class="number">1.</span> 在写入index之前需要寻找到物理地址 对应的index文件. 如果此index文件没有则创建. 确保在此部分可以正常操作。</span><br><span class="line">   附加讨论. 在获取index文件的时代码中使用到了 读写锁 readWriteLock. 并且在读写锁中使用了共享变量</span><br><span class="line">   这部分有一个问题是, ReentrantReadWriteLock 的操作是cas控制的。内部没有使用到 内存屏障.readWrite底层的sync是没有没有<span class="keyword">volatile</span>标记.或者是已经synchronize包含的.那么怎么防止指令重拍呢？ 其实方式很简单, 在方法内. 将共享变量使用 `&#123;&#125;`包起来,产生一个新的作用域. 变量的初始化在`&#123;&#125;`作用域之前. 这样就杜绝了 指令重拍优化了. 这个方式也是对变量的 mutable immutable的解释====&gt; 在c++领域中 mutable是指 关键词 和const同为修饰作用的.</span><br><span class="line"></span><br><span class="line"><span class="number">2.</span> 通过index文件格式的解析.</span><br><span class="line">    <span class="comment">// 通过该index文件的结构. 可以了解到,索引文件本质上是一个hashmap.的文件存储实现模式。</span></span><br><span class="line">    <span class="comment">//    从索引槽到行内容,索引槽 对应的是 hashmap的 table索引槽,</span></span><br><span class="line">    <span class="comment">//    索引行中存储了pre_content_index的指针, 用于解决hash冲突,</span></span><br><span class="line">    <span class="comment">//    table索引槽中存储 最后一个hash的 content_index指针.</span></span><br><span class="line">    <span class="comment">//</span></span><br><span class="line">    <span class="comment">// 对索引文件中的key进行设置. phyOffset为 commitLog中的地址信息. storeTime为commitLog 入库时间</span></span><br><span class="line">    <span class="comment">// 此处的重点为. 后续通过key进行计算过滤怎么处理。</span></span><br><span class="line">    <span class="comment">// 换句话说. 索引的数据结构是怎么样的。</span></span><br><span class="line">    <span class="comment">// 从 下方计算可以推测出. rocketmq 对于index文件的规则可以参考下方</span></span><br><span class="line">    <span class="comment">// |--------------header---index_header(40字节)------------------|</span></span><br><span class="line">    <span class="comment">// |--------------header---hash_slot----------------------------|</span></span><br><span class="line">    <span class="comment">// |--------------content_0-------------------------------------|</span></span><br><span class="line">    <span class="comment">// |--------------content_1-------------------------------------|</span></span><br><span class="line">    <span class="comment">// |--------------content_2-------------------------------------|</span></span><br><span class="line">    <span class="comment">// |--------------content_3-------------------------------------|</span></span><br><span class="line">    <span class="comment">// 其中头部 部分可以分为两种.</span></span><br><span class="line">    <span class="comment">//    第一种为 索引文件描述,内容固定,和索引内容基本无关. 总大小为40字节</span></span><br><span class="line">    <span class="comment">//    第二种为 索引槽 数据总大小为 单个槽大小*最大槽总数. 其中单个槽大小固定为4字节,槽总数通过messageStoreConfig 传入。</span></span><br><span class="line">    <span class="comment">//      索引槽 内容为查询key的 hash值. 所以单个槽内容为4字节.</span></span><br><span class="line">    <span class="comment">//      既然 索引槽内容为hash值, 那么可以大胆的推断出 index文件使用 hash计算得到该key的相对于槽而言的位置大小,通过槽内的内容也就可以知道.该key所对应数据的真实文件位置,解释按照下方给出</span></span><br><span class="line">    <span class="comment">// 其中除却头部部分,其他均为索引内容(索引行内容方案 ☆☆☆☆☆)</span></span><br><span class="line">    <span class="comment">//    平时通过内存中的hash,list结构很容易找出值在哪里.如果需要放在文件系统中呢？并且如果内容长度是可变的话,怎么找寻呢？</span></span><br><span class="line">    <span class="comment">//    如果需要考虑可变内容,那么还需要在额外存放行内容大小,如果是按照list顺序遍历的方式,这样是没问题的. 但是这样就导致每次查询都从0还是,查询效率就非常的慢了,</span></span><br><span class="line">    <span class="comment">//       当然也可以做二分查找,但是总共需要跳过的字节数还是需要计算出来</span></span><br><span class="line">    <span class="comment">////       |content0_index|content0_size|content0_data|  40 字节 0~40</span></span><br><span class="line">    <span class="comment">///        |content1_index|content1_size|content1_data|  60 字节 40~100</span></span><br><span class="line">    <span class="comment">///        |content2_index|content2_size|content2_data|  80 字节 100~180</span></span><br><span class="line">    <span class="comment">///        查找一个数据需要通过 0开始遍历对size进行累加才能计算出 需要跳过的数据  比如需要查找content_2的数据,需要对content_0和content_1的数据进行累加 =100,这个数据为跳过数据</span></span><br><span class="line">    <span class="comment">//    那么就可以考虑规避这个问题,使用固定长度的`内容行` 此时就有计算规则了. 文件行的内容起始位置=文件头部(包含索引槽和索引文件描述)+偏移地址*内容长度</span></span><br><span class="line">    <span class="comment">//         |content0_index|content0_data|  40 字节 0~40</span></span><br><span class="line">    <span class="comment">//         |content1_index|content1_data|  40 字节 40~80</span></span><br><span class="line">    <span class="comment">//         |content2_index|content2_data|  40 字节 80~120</span></span><br><span class="line">    <span class="comment">//         |content3_index|content3_data|  40 字节 120~160</span></span><br><span class="line">    <span class="comment">//       通过固定长度的内容行. 可以很便捷计算出需要跳过的数据  同样按照查找 content_2为例. 需要跳过的数据 2 * 40 = 80 并不需要针对每个进行累加</span></span><br><span class="line">    <span class="comment">// 上述方案概要完成, 可以细则解释</span></span><br><span class="line">    <span class="comment">// Q1 文件头部存放了什么?</span></span><br><span class="line">    <span class="comment">// A1 index_header 主要存放是的整体索引文件 元数据信息。</span></span><br><span class="line">    <span class="comment">//   其中包含</span></span><br><span class="line">    <span class="comment">//   1. beginTimestampIndex 第一个写入消息时创建索引文件创建时间戳. 使用的是 long 占用 8字节</span></span><br><span class="line">    <span class="comment">//   2. endTimestampIndex 索引文件最后写入的时间戳, 使用的是 long 占用8字节</span></span><br><span class="line">    <span class="comment">//   3. beginPhyoffsetIndex 第一个写入消息的物理地址  使用的是 long 占用8字节</span></span><br><span class="line">    <span class="comment">//   4. endPhyoffsetIndex 最后一个写入消息的物理地址  使用的是 long 占用8字节</span></span><br><span class="line">    <span class="comment">//   5. hashSlotcountIndex 索引槽的总数 已经使用的索引槽. 配置文件内有固定的索引槽. 但是对于文件内真实存在的就需要文件自己记录,用于后续使用 使用的是int 占用4字节</span></span><br><span class="line">    <span class="comment">//   6. indexCountIndex 索引内容的总数 已经使用的索引内容. 该数据一般和`hashSlotcountIndex` 是一样的。   使用的是int 占用4字节</span></span><br><span class="line">    <span class="comment">// Q2 索引槽中到底存放了什么?</span></span><br><span class="line">    <span class="comment">// A2 索引槽存放是的 内容行的编号. 每次新增一个index的时候 index_header中的index_count就需要增加一个.然后存放在对应的文件槽内。</span></span><br><span class="line">    <span class="comment">// Q3 content 固定长度后包含哪些东西?一个索引文件中包含哪些数据</span></span><br><span class="line">    <span class="comment">// A3 content 内容包含.</span></span><br><span class="line">    <span class="comment">// 1. ketHash.该内容行所使用的hash值. ====&gt;类似于使用了分表也要记录根据什么条件进行的分表</span></span><br><span class="line">    <span class="comment">// 2. phyOffset 内容行commitLog 物理地址 ====&gt;为了寻找到具体的消息</span></span><br><span class="line">    <span class="comment">// 3. timeDiff 内容行commitLog 落库时间相对于索引文件的间隔时间====&gt; 用于过期？间隔时间短的表示最初进入的. 当出现hash冲突的时候提供一个去处逻辑？</span></span><br><span class="line">    <span class="comment">// 4. slotValue 存储的上一次hash计算出的 文件行具体地址。 ☆☆☆☆☆ 重要.</span></span><br><span class="line">    <span class="comment">// Q4 从上描述得到的信息可以该方案有一个严重的弊端(仅仅使用content_index去定位数据). 当出现hash冲突后怎么去解决？？？</span></span><br><span class="line">    <span class="comment">// A4 在hash冲突的行内. 记录上一次文件行的content_index,这样在一个hash槽内就组成了一个链表结构。并且这部分是属于头插法====&gt;</span></span><br><span class="line">    <span class="comment">//       将最新的记录插入到hash槽内, 再辅佐于keyHash真实的值. 就可以定位到数据了</span></span><br><span class="line">    <span class="comment">//  举例. 现在有四个key. 这四个key对应的&#123;k0,k1,k2,k3&#125; hash都落入到了一个hash_slot[1]中</span></span><br><span class="line">    <span class="comment">//  那么hash_slot[1] 的变化在进行四次插入后有如下变化：</span></span><br><span class="line">    <span class="comment">//</span></span><br><span class="line">    <span class="comment">//  hash_slot[1]=content0_index =&gt; hash_slot[1]=content1_index =&gt; hash_slot[1]=content2_index =&gt; hash_slot[1]=content2_index</span></span><br><span class="line">    <span class="comment">//         |-------------[hash_slot[1]]--------------------------------------|</span></span><br><span class="line">    <span class="comment">//         | 索引行,行标index_count|内容   |hash值|上一个索引行,航标   |</span></span><br><span class="line">    <span class="comment">//         |content0_index|content0_data|keyHash_0|-1            |</span></span><br><span class="line">    <span class="comment">//         |content1_index|content1_data|keyHash_1|content0_index|</span></span><br><span class="line">    <span class="comment">//         |content2_index|content2_data|keyHash_2|content1_index|</span></span><br><span class="line">    <span class="comment">//         |content3_index|content3_data|keyHash_3|content2_index|</span></span><br><span class="line">    <span class="comment">//</span></span><br><span class="line">    <span class="comment">// 逻辑上 索引文件的 索引槽头部和索引内容是一个 hashmap. 采用的是头插法</span></span><br><span class="line">    <span class="comment">//</span></span><br></pre></td></tr></table></figure>
+
+
+
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">putKey</span><span class="params">(<span class="keyword">final</span> String key, <span class="keyword">final</span> <span class="type">long</span> phyOffset, <span class="keyword">final</span> <span class="type">long</span> storeTimestamp)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">this</span>.indexHeader.getIndexCount() &lt; <span class="built_in">this</span>.indexNum) &#123;</span><br><span class="line">            <span class="comment">// 计算这个key的字符串hash</span></span><br><span class="line">            <span class="type">int</span> <span class="variable">keyHash</span> <span class="operator">=</span> indexKeyHashMethod(key);</span><br><span class="line">            <span class="comment">// 计算出hash所在的桶是多少</span></span><br><span class="line">            <span class="type">int</span> <span class="variable">slotPos</span> <span class="operator">=</span> keyHash % <span class="built_in">this</span>.hashSlotNum;</span><br><span class="line">            <span class="comment">//   抽象的概念的 桶坐标？.绝对地址？？？不是很明白这个.====&gt;hashSlotNum 这个是配置的. 通过indexService传入,indexService中的由MessageStoreConfig传入。</span></span><br><span class="line">            <span class="comment">// 通过简单计算理解 absSlotPos表示的是 在Index这个文件中. 的物理地址。其中slotPos是逻辑地址,表示的是桶的序号.然后因为每个slot是固定长度的.</span></span><br><span class="line">            <span class="comment">//   那么就可以通过slotPos*slotSize的方式得到这个数据的绝对地址 再然后因为每个index文件有头部信息, 这个需要跳过的,</span></span><br><span class="line">            <span class="comment">// 一般这么操作,是因为数据最终是需要落地在文件中的. 采用一行一个数据的方式是可以的,但是这样的数据是非紧凑型的.</span></span><br><span class="line">            <span class="comment">//   那么就引发了一个问题. 为什么index需要使用这样的方式进行 读写？对于index这样高频读写的数据, 不太适合</span></span><br><span class="line">            <span class="type">int</span> <span class="variable">absSlotPos</span> <span class="operator">=</span> IndexHeader.INDEX_HEADER_SIZE + slotPos * hashSlotSize;</span><br><span class="line"></span><br><span class="line">            <span class="type">FileLock</span> <span class="variable">fileLock</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="comment">// 从被注释掉的痕迹看.  原本是打算 文件锁的.☆☆☆☆ 文件锁是系统编程基础,需要着重看</span></span><br><span class="line">                <span class="comment">// fileLock = this.fileChannel.lock(absSlotPos, hashSlotSize,</span></span><br><span class="line">                <span class="comment">// false);</span></span><br><span class="line">                <span class="type">int</span> <span class="variable">slotValue</span> <span class="operator">=</span> <span class="built_in">this</span>.mappedByteBuffer.getInt(absSlotPos);</span><br><span class="line">                <span class="comment">// 存在hash冲突如何处理</span></span><br><span class="line">                <span class="keyword">if</span> (slotValue &lt;= invalidIndex || slotValue &gt; <span class="built_in">this</span>.indexHeader.getIndexCount()) &#123;</span><br><span class="line">                    slotValue = invalidIndex;</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                <span class="type">long</span> <span class="variable">timeDiff</span> <span class="operator">=</span> storeTimestamp - <span class="built_in">this</span>.indexHeader.getBeginTimestamp();</span><br><span class="line"></span><br><span class="line">                timeDiff = timeDiff / <span class="number">1000</span>;</span><br><span class="line"></span><br><span class="line">                <span class="keyword">if</span> (<span class="built_in">this</span>.indexHeader.getBeginTimestamp() &lt;= <span class="number">0</span>) &#123;</span><br><span class="line">                    timeDiff = <span class="number">0</span>;</span><br><span class="line">                &#125; <span class="keyword">else</span> <span class="keyword">if</span> (timeDiff &gt; Integer.MAX_VALUE) &#123;</span><br><span class="line">                    timeDiff = Integer.MAX_VALUE;</span><br><span class="line">                &#125; <span class="keyword">else</span> <span class="keyword">if</span> (timeDiff &lt; <span class="number">0</span>) &#123;</span><br><span class="line">                    timeDiff = <span class="number">0</span>;</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                <span class="type">int</span> <span class="variable">absIndexPos</span> <span class="operator">=</span></span><br><span class="line">                    IndexHeader.INDEX_HEADER_SIZE + <span class="built_in">this</span>.hashSlotNum * hashSlotSize</span><br><span class="line">                        + <span class="built_in">this</span>.indexHeader.getIndexCount() * indexSize;</span><br><span class="line"></span><br><span class="line">                <span class="built_in">this</span>.mappedByteBuffer.putInt(absIndexPos, keyHash);</span><br><span class="line">                <span class="built_in">this</span>.mappedByteBuffer.putLong(absIndexPos + <span class="number">4</span>, phyOffset);</span><br><span class="line">                <span class="built_in">this</span>.mappedByteBuffer.putInt(absIndexPos + <span class="number">4</span> + <span class="number">8</span>, (<span class="type">int</span>) timeDiff);</span><br><span class="line">                <span class="built_in">this</span>.mappedByteBuffer.putInt(absIndexPos + <span class="number">4</span> + <span class="number">8</span> + <span class="number">4</span>, slotValue);</span><br><span class="line"></span><br><span class="line">                <span class="built_in">this</span>.mappedByteBuffer.putInt(absSlotPos, <span class="built_in">this</span>.indexHeader.getIndexCount());</span><br><span class="line"></span><br><span class="line">                <span class="keyword">if</span> (<span class="built_in">this</span>.indexHeader.getIndexCount() &lt;= <span class="number">1</span>) &#123;</span><br><span class="line">                    <span class="built_in">this</span>.indexHeader.setBeginPhyOffset(phyOffset);</span><br><span class="line">                    <span class="built_in">this</span>.indexHeader.setBeginTimestamp(storeTimestamp);</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                <span class="keyword">if</span> (invalidIndex == slotValue) &#123;</span><br><span class="line">                    <span class="built_in">this</span>.indexHeader.incHashSlotCount();</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="built_in">this</span>.indexHeader.incIndexCount();</span><br><span class="line">                <span class="built_in">this</span>.indexHeader.setEndPhyOffset(phyOffset);</span><br><span class="line">                <span class="built_in">this</span>.indexHeader.setEndTimestamp(storeTimestamp);</span><br><span class="line"></span><br><span class="line">                <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">            &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">                log.error(<span class="string">&quot;putKey exception, Key: &quot;</span> + key + <span class="string">&quot; KeyHashCode: &quot;</span> + key.hashCode(), e);</span><br><span class="line">            &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">                <span class="keyword">if</span> (fileLock != <span class="literal">null</span>) &#123;</span><br><span class="line">                    <span class="keyword">try</span> &#123;</span><br><span class="line">                        fileLock.release();</span><br><span class="line">                    &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">                        log.error(<span class="string">&quot;Failed to release the lock&quot;</span>, e);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            log.warn(<span class="string">&quot;Over index file capacity: index count = &quot;</span> + <span class="built_in">this</span>.indexHeader.getIndexCount()</span><br><span class="line">                + <span class="string">&quot;; index max num = &quot;</span> + <span class="built_in">this</span>.indexNum);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          
+
+<div class="post-copyright">
+<ul>
+  <li class="post-copyright-author">
+      <strong>本文作者： </strong>jev001
+  </li>
+  <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+      <a href="http://jev001.github.io/2022/05/02/%E4%B8%93%E9%A2%98/rockemq%E6%BA%90%E7%A0%81%E8%AF%A6%E8%A7%A3/rocket%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E[3]-%E6%9E%84%E5%BB%BAindex%E6%96%87%E4%BB%B6/" title="rocket存储引擎[3]-构建index文件">http://jev001.github.io/2022/05/02/专题/rockemq源码详解/rocket存储引擎[3]-构建index文件/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/rocketmq/" rel="tag"><i class="fa fa-tag"></i> rocketmq</a>
+              <a href="/tags/%E6%BA%90%E7%A0%81%E7%B2%BE%E8%AE%B2/" rel="tag"><i class="fa fa-tag"></i> 源码精讲</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2022/05/02/%E4%B8%93%E9%A2%98/rockemq%E6%BA%90%E7%A0%81%E8%AF%A6%E8%A7%A3/rocket%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E%5B2%5D-%E6%9E%84%E5%BB%BAconsumerQueue%E6%96%87%E4%BB%B6/" rel="prev" title="rocket存储引擎[2]-构建consumerQueue文件">
+                  <i class="fa fa-chevron-left"></i> rocket存储引擎[2]-构建consumerQueue文件
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2022/05/02/%E4%B8%93%E9%A2%98/rockemq%E6%BA%90%E7%A0%81%E8%AF%A6%E8%A7%A3/rocket%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E%5B4%5D-%E6%9F%A5%E8%AF%A2index%E6%96%87%E4%BB%B6/" rel="next" title="rocket存储引擎[4]-查询index文件">
+                  rocket存储引擎[4]-查询index文件 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">jev001</span>
+</div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+      <span>站点总字数：</span>
+    <span title="站点总字数">62k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span>站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">57 分钟</span>
+  </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+<script src="https://cdn.jsdelivr.net/npm/hexo-generator-searchdb@1.4.0/dist/search.js" integrity="sha256-vXZMYLEqsROAXkEw93GGIvaB2ab+QW6w3+1ahD9nXXA=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+  <script class="next-config" data-name="pdf" type="application/json">{"object_url":{"url":"https://cdn.jsdelivr.net/npm/pdfobject@2.2.7/pdfobject.min.js","integrity":"sha256-ph3Dk89VmuTVXG6x/RDzk53SU9LPdAh1tpv0UvnDZ2I="},"url":"/lib/pdf/web/viewer.html"}</script>
+  <script src="/js/third-party/tags/pdf.js"></script>
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdn.jsdelivr.net/npm/mermaid@9.0.1/dist/mermaid.min.js","integrity":"sha256-CemUs9ITT7liCZpVMktcEw0BpAOZ1+mujlMB3UyuImU="}}</script>
+  <script src="/js/third-party/tags/mermaid.js"></script>
+
+
+  <script src="/js/third-party/pace.js"></script>
+
+  
+
+
+  <script class="next-config" data-name="leancloud_visitors" type="application/json">{"enable":true,"app_id":"VJN6Sk5TCj7fCy6EzHhJA5DD-MdYXbMMI","app_key":"XPiu3fBf9M8QOX4sgNQeBAVT","server_url":"https://vjn6sk5t.api.lncldglobal.com","security":false}</script>
+  <script src="/js/third-party/statistics/lean-analytics.js"></script>
+
+
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/live2dw/assets/koharu.model.json"},"log":false,"display":{"position":"right","width":80,"height":120},"mobile":{"show":true},"react":{"opacity":0.7},"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script><!-- hexo-inject:begin --><!-- hexo-inject:end --></body>
+</html>
